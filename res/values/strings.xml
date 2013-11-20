@@ -3,7 +3,7 @@
 
     <string name="app_name">Glasstagram</string>
     <string name="action_share_to_twitter">Share to Twitter</string>
-    <string name="glass_voice_trigger">glasstagram</string>
+    <string name="glass_voice_trigger">Glasstagram</string>
     <string name="loading_filters">Loading filters</string>
     <string name="uploading_to_twitter">Uploading to Twitter</string>
     <string name="success">Success!</string>

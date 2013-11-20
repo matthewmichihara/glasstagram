@@ -1,12 +1,10 @@
 package com.fourpool.glasstagram;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,12 +31,12 @@ public class FilterCardScrollAdapter extends CardScrollAdapter {
 
 	@Override
 	public int findIdPosition(Object arg0) {
-		return -1;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public int findItemPosition(Object arg0) {
-		return -1;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -54,7 +52,7 @@ public class FilterCardScrollAdapter extends CardScrollAdapter {
 	@Override
 	public View getView(int arg0, View arg1, ViewGroup arg2) {
 		LayoutInflater inflater = LayoutInflater.from(context);
-		View v = inflater.inflate(R.layout.card_filtered_layout, arg2, false);
+		View v = inflater.inflate(R.layout.card_filtered_image, arg2, false);
 		ImageView filteredImage = (ImageView) v
 				.findViewById(R.id.filtered_image);
 		TextView filteredName = (TextView) v.findViewById(R.id.filter_name);
@@ -64,18 +62,6 @@ public class FilterCardScrollAdapter extends CardScrollAdapter {
 
 		filteredImage.setImageBitmap(bm);
 		filteredName.setText(FILTER_RES_IDS[arg0]);
-
-		v.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent sendIntent = new Intent();
-				sendIntent.setAction(Intent.ACTION_SEND);
-				sendIntent.putExtra(Intent.EXTRA_TEXT,
-						"This is my text to send.");
-				sendIntent.setType("text/plain");
-				context.startActivity(sendIntent);
-			}
-		});
 
 		return v;
 	}

@@ -38,7 +38,7 @@ public class TweetIntentService extends IntentService {
 
 		try {
 			final Bitmap originalBitmap = BitmapUtils
-					.decodeSampledBitmapFromPath(imagePath, 100, 100);
+					.decodeSampledBitmapFromPath(imagePath, 300, 300);
 			Bitmap bm = PhotoProcessing
 					.filterPhoto(originalBitmap, filterIndex);
 

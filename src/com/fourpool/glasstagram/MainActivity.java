@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 import com.google.android.glass.widget.CardScrollView;
 import com.squareup.otto.Subscribe;
@@ -122,5 +123,11 @@ public class MainActivity extends Activity {
 	public void onImageTweeted(ImageTweetedEvent event) {
 		Log.d(TAG, "Received image tweeted event");
 		setContentView(R.layout.card_upload_success);
+	}
+
+	@Subscribe
+	public void onError(ErrorEvent event) {
+		Toast.makeText(this, event.getError(), Toast.LENGTH_LONG).show();
+		finish();
 	}
 }

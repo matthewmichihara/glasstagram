@@ -22,6 +22,8 @@ public class TweetIntentService extends IntentService {
 	public static final String EXTRA_IMAGE_FILE_PATH = "extra_image_file_path";
 	public static final String EXTRA_FILTER_INDEX = "extra_filter_index";
 
+	private final Handler handler = new Handler(Looper.getMainLooper());
+
 	public TweetIntentService() {
 		super(TweetIntentService.class.getSimpleName());
 	}
@@ -52,7 +54,6 @@ public class TweetIntentService extends IntentService {
 			update.setMedia("glasstagram", bs);
 			twitter.updateStatus(update);
 
-			Handler handler = new Handler(Looper.getMainLooper());
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
@@ -61,6 +62,14 @@ public class TweetIntentService extends IntentService {
 			});
 		} catch (TwitterException e) {
 			Log.e(TAG, "Something went wrong", e);
+
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					BusFactory.getInstance().post(
+							new ErrorEvent("Unable to upload to Twitter"));
+				}
+			});
 		}
 	}
 

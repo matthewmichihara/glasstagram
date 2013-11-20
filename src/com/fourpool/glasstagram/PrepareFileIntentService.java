@@ -26,7 +26,7 @@ public class PrepareFileIntentService extends IntentService {
 		// yolo
 		while (!file.exists()) {
 			Log.d(TAG, "Waiting for file to exist");
-			SystemClock.sleep(500);
+			SystemClock.sleep(100);
 		}
 
 		Handler handler = new Handler(Looper.getMainLooper());

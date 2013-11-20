@@ -1,75 +1,49 @@
 package com.fourpool.glasstagram;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
+import twitter4j.Status;
+import twitter4j.StatusUpdate;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.conf.ConfigurationBuilder;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 
 import com.google.android.glass.widget.CardScrollView;
 import com.lightbox.android.photoprocessing.PhotoProcessing;
 
 public class MainActivity extends Activity {
 	private static final int TAKE_PHOTO = 0;
-
-	private ImageView imageView;
-	private Button takePhotoButton;
+	private Twitter twitter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		setContentView(R.layout.activity_main);
-//
-//		imageView = (ImageView) findViewById(R.id.image);
-//		takePhotoButton = (Button) findViewById(R.id.choose_image_button);
-//
-//		takePhotoButton.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//				startActivityForResult(intent, TAKE_PHOTO);
-//			}
-//		});
-//
-		Bitmap bitmap = BitmapUtils.decodeSampledBitmapFromPath(
-				"/mnt/sdcard/DCIM/Camera/20131119_152955_448.jpg", 100, 100);
-		//imageView.setImageBitmap(bitmap);
 
-		
-		CardScrollView scrollView = new CardScrollView(this);
-		FilterCardScrollAdapter adapter = new FilterCardScrollAdapter(bitmap, this);
-		scrollView.setAdapter(adapter);
-		scrollView.activate();
-		setContentView(scrollView);
-		
-	}
+		ConfigurationBuilder cb = new ConfigurationBuilder();
+		cb.setDebugEnabled(true).setOAuthConsumerKey(SecretKeys.CONSUMER_KEY)
+				.setOAuthConsumerSecret(SecretKeys.CONSUMER_SECRET)
+				.setOAuthAccessToken(SecretKeys.ACCESS_TOKEN)
+				.setOAuthAccessTokenSecret(SecretKeys.ACCESS_TOKEN_SECRET);
+		TwitterFactory tf = new TwitterFactory(cb.build());
+		twitter = tf.getInstance();
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		startActivityForResult(intent, TAKE_PHOTO);
 	}
 
 	@Override
@@ -80,21 +54,61 @@ public class MainActivity extends Activity {
 		switch (requestCode) {
 		case TAKE_PHOTO:
 			if (resultCode == RESULT_OK) {
-				File file = new File(
-						imageReturnedIntent.getStringExtra("picture_file_path"));
+				final String path = imageReturnedIntent
+						.getStringExtra("picture_file_path");
+				File file = new File(path);
 
 				while (!file.exists()) {
 					SystemClock.sleep(500);
 					Log.e("ASDF", "About to check again");
 				}
 
-				Bitmap bitmap = BitmapUtils
+				final Bitmap bitmap = BitmapUtils
 						.decodeSampledBitmapFromPath(imageReturnedIntent
 								.getStringExtra("picture_file_path"), 100, 100);
-				Bitmap bm = PhotoProcessing.filterPhoto(bitmap, 6);
+				CardScrollView scrollView = new CardScrollView(this);
+				FilterCardScrollAdapter adapter = new FilterCardScrollAdapter(
+						bitmap, this);
+				scrollView.setAdapter(adapter);
+				scrollView.activate();
+				scrollView.setOnItemClickListener(new OnItemClickListener() {
 
-				imageView.setImageBitmap(bm);
+					@Override
+					public void onItemClick(AdapterView<?> arg0, View arg1,
+							int arg2, long arg3) {
+						Bitmap originalBitmap = BitmapFactory.decodeFile(path);
+						Bitmap bm = PhotoProcessing.filterPhoto(originalBitmap,
+								arg2);
+						postTweet(bm);
+					}
+
+				});
+				setContentView(scrollView);
 			}
 		}
+	}
+
+	private void postTweet(final Bitmap bitmap) {
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					StatusUpdate update = new StatusUpdate("#glasstagram");
+
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					bitmap.compress(CompressFormat.PNG, 0 /* ignored for PNG */,
+							bos);
+					byte[] bitmapdata = bos.toByteArray();
+					ByteArrayInputStream bs = new ByteArrayInputStream(
+							bitmapdata);
+
+					update.setMedia("asdf", bs);
+					Status status = twitter.updateStatus(update);
+					Log.e("MainActivity", status.getText());
+				} catch (TwitterException e) {
+					Log.e("MainActivity", "Fail", e);
+				}
+			}
+		}.start();
 	}
 }

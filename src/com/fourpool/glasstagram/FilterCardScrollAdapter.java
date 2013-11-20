@@ -1,10 +1,12 @@
 package com.fourpool.glasstagram;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,7 +17,6 @@ import com.lightbox.android.photoprocessing.PhotoProcessing;
 public class FilterCardScrollAdapter extends CardScrollAdapter {
 	private final Bitmap bitmap;
 	private final Context context;
-	private final static int SIZE = 12;
 
 	private static final int[] FILTER_RES_IDS = new int[] {
 			R.string.filter_original, R.string.filter_instafix,
@@ -42,7 +43,7 @@ public class FilterCardScrollAdapter extends CardScrollAdapter {
 
 	@Override
 	public int getCount() {
-		return 12;
+		return FILTER_RES_IDS.length;
 	}
 
 	@Override
@@ -57,14 +58,25 @@ public class FilterCardScrollAdapter extends CardScrollAdapter {
 		ImageView filteredImage = (ImageView) v
 				.findViewById(R.id.filtered_image);
 		TextView filteredName = (TextView) v.findViewById(R.id.filter_name);
-		
-		Bitmap bm = PhotoProcessing.filterPhoto(bitmap.copy(Config.ARGB_8888, true), arg0);
-		
+
+		Bitmap bm = PhotoProcessing.filterPhoto(
+				bitmap.copy(Config.ARGB_8888, true), arg0);
+
 		filteredImage.setImageBitmap(bm);
 		filteredName.setText(FILTER_RES_IDS[arg0]);
 
-		
-		
+		v.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent sendIntent = new Intent();
+				sendIntent.setAction(Intent.ACTION_SEND);
+				sendIntent.putExtra(Intent.EXTRA_TEXT,
+						"This is my text to send.");
+				sendIntent.setType("text/plain");
+				context.startActivity(sendIntent);
+			}
+		});
+
 		return v;
 	}
 }

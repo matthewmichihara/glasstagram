@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
 		switch (requestCode) {
 		case TAKE_PHOTO:
 			if (resultCode == RESULT_OK) {
-				setContentView(R.layout.card_loading_filters);
+				setContentView(R.layout.card_loading_image);
 
 				final String path = imageReturnedIntent
 						.getStringExtra(EXTRA_PICTURE_FILE_PATH);

@@ -5,7 +5,6 @@ import java.io.File;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -21,24 +20,25 @@ import com.squareup.otto.Subscribe;
 
 public class MainActivity extends Activity {
 	private static final String TAG = MainActivity.class.getSimpleName();
+	private static final String EXTRA_PICTURE_FILE_PATH = "picture_file_path";
 	private static final int TAKE_PHOTO = 0;
 
 	private String selectedFilePath;
 	private int selectedFilterIndex;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		startActivityForResult(intent, TAKE_PHOTO);
-	}
+	// yolo
+	private boolean photoTakingPhase = true;
 
 	@Override
 	public void onResume() {
 		super.onResume();
 
 		BusFactory.getInstance().register(this);
+
+		if (photoTakingPhase) {
+			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			startActivityForResult(intent, TAKE_PHOTO);
+		}
 	}
 
 	@Override
@@ -60,11 +60,13 @@ public class MainActivity extends Activity {
 				setContentView(R.layout.card_loading_filters);
 
 				final String path = imageReturnedIntent
-						.getStringExtra("picture_file_path");
+						.getStringExtra(EXTRA_PICTURE_FILE_PATH);
 
 				Intent intent = new Intent(this, PrepareFileIntentService.class);
 				intent.putExtra(PrepareFileIntentService.EXTRA_IMAGE_PATH, path);
 				startService(intent);
+
+				photoTakingPhase = false;
 			}
 		}
 	}

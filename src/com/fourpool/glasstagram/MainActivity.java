@@ -16,6 +16,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.google.android.glass.widget.CardScrollView;
 import com.lightbox.android.photoprocessing.PhotoProcessing;
 
 public class MainActivity extends Activity {
@@ -27,23 +28,30 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-
-		imageView = (ImageView) findViewById(R.id.image);
-		takePhotoButton = (Button) findViewById(R.id.choose_image_button);
-
-		takePhotoButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				startActivityForResult(intent, TAKE_PHOTO);
-			}
-		});
-
+//		setContentView(R.layout.activity_main);
+//
+//		imageView = (ImageView) findViewById(R.id.image);
+//		takePhotoButton = (Button) findViewById(R.id.choose_image_button);
+//
+//		takePhotoButton.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//				startActivityForResult(intent, TAKE_PHOTO);
+//			}
+//		});
+//
 		Bitmap bitmap = BitmapUtils.decodeSampledBitmapFromPath(
 				"/mnt/sdcard/DCIM/Camera/20131119_152955_448.jpg", 100, 100);
-		imageView.setImageBitmap(bitmap);
+		//imageView.setImageBitmap(bitmap);
 
+		
+		CardScrollView scrollView = new CardScrollView(this);
+		FilterCardScrollAdapter adapter = new FilterCardScrollAdapter(bitmap, this);
+		scrollView.setAdapter(adapter);
+		scrollView.activate();
+		setContentView(scrollView);
+		
 	}
 
 	@Override

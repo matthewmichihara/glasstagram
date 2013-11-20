@@ -31,8 +31,6 @@ public class MainActivity extends Activity {
 
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		startActivityForResult(intent, TAKE_PHOTO);
-
-		setContentView(R.layout.card_loading_filters);
 	}
 
 	@Override

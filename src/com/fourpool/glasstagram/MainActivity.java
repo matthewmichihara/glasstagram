@@ -102,7 +102,7 @@ public class MainActivity extends Activity {
 		final String path = imageFile.getPath();
 
 		final Bitmap bitmap = BitmapUtils.decodeSampledBitmapFromPath(path,
-				100, 100);
+				200, 200);
 		CardScrollView scrollView = new CardScrollView(this);
 		FilterCardScrollAdapter adapter = new FilterCardScrollAdapter(bitmap,
 				this);

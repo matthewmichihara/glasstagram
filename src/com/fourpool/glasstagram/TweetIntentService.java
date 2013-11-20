@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.lightbox.android.photoprocessing.PhotoProcessing;
@@ -21,6 +22,7 @@ public class TweetIntentService extends IntentService {
 
 	public static final String EXTRA_IMAGE_FILE_PATH = "extra_image_file_path";
 	public static final String EXTRA_FILTER_INDEX = "extra_filter_index";
+	public static final String EXTRA_CAPTION = "extra_caption";
 
 	private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -34,6 +36,7 @@ public class TweetIntentService extends IntentService {
 
 		String imagePath = intent.getStringExtra(EXTRA_IMAGE_FILE_PATH);
 		int filterIndex = intent.getIntExtra(EXTRA_FILTER_INDEX, -1);
+		String caption = intent.getStringExtra(EXTRA_CAPTION);
 
 		GlasstagramApplication app = (GlasstagramApplication) getApplication();
 		Twitter twitter = app.getTwitter();
@@ -44,7 +47,12 @@ public class TweetIntentService extends IntentService {
 			Bitmap bm = PhotoProcessing
 					.filterPhoto(originalBitmap, filterIndex);
 
-			StatusUpdate update = new StatusUpdate("#glasstagram");
+			StatusUpdate update;
+			if (TextUtils.isEmpty(caption)) {
+				update = new StatusUpdate("#glasstagram");
+			} else {
+				update = new StatusUpdate(caption + " #glasstagram");
+			}
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			bm.compress(CompressFormat.PNG, 0 /* ignored for PNG */, bos);

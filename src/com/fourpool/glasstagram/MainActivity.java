@@ -1,11 +1,13 @@
 package com.fourpool.glasstagram;
 
 import java.io.File;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,9 +24,14 @@ public class MainActivity extends Activity {
 	private static final String TAG = MainActivity.class.getSimpleName();
 	private static final String EXTRA_PICTURE_FILE_PATH = "picture_file_path";
 	private static final int TAKE_PHOTO = 0;
+	private static final int SPEECH_REQUEST = 1;
+
+	private CardScrollView scrollView;
+	private Bitmap downsampledBitmap;
 
 	private String selectedFilePath;
 	private int selectedFilterIndex;
+	private String caption = "";
 
 	// yolo
 	private boolean photoTakingPhase = true;
@@ -50,8 +57,8 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,
-			Intent imageReturnedIntent) {
-		super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+			Intent resultIntent) {
+		super.onActivityResult(requestCode, resultCode, resultIntent);
 		Log.d(TAG, "onActivityResult called");
 
 		switch (requestCode) {
@@ -59,7 +66,7 @@ public class MainActivity extends Activity {
 			if (resultCode == RESULT_OK) {
 				setContentView(R.layout.card_loading_image);
 
-				final String path = imageReturnedIntent
+				final String path = resultIntent
 						.getStringExtra(EXTRA_PICTURE_FILE_PATH);
 
 				Intent intent = new Intent(this, PrepareFileIntentService.class);
@@ -67,6 +74,20 @@ public class MainActivity extends Activity {
 				startService(intent);
 
 				photoTakingPhase = false;
+			}
+			break;
+		case SPEECH_REQUEST:
+			if (resultCode == RESULT_OK) {
+				List<String> results = resultIntent
+						.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+				caption = results.get(0);
+				Log.d(TAG, "Caption = " + caption);
+				scrollView.deactivate();
+				scrollView.setAdapter(new FilterCardScrollAdapter(
+						downsampledBitmap, caption, this));
+				scrollView.activate();
+
+				scrollView.setSelection(selectedFilterIndex);
 			}
 		}
 	}
@@ -89,7 +110,13 @@ public class MainActivity extends Activity {
 					selectedFilePath);
 			intent.putExtra(TweetIntentService.EXTRA_FILTER_INDEX,
 					selectedFilterIndex);
+			intent.putExtra(TweetIntentService.EXTRA_CAPTION, caption);
 			startService(intent);
+			return true;
+		case R.id.action_add_caption:
+			Intent speechIntent = new Intent(
+					RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+			startActivityForResult(speechIntent, SPEECH_REQUEST);
 			return true;
 		default:
 			throw new RuntimeException();
@@ -101,11 +128,11 @@ public class MainActivity extends Activity {
 		File imageFile = event.getImageFile();
 		final String path = imageFile.getPath();
 
-		final Bitmap bitmap = BitmapUtils.decodeSampledBitmapFromPath(path,
-				200, 200);
-		CardScrollView scrollView = new CardScrollView(this);
-		FilterCardScrollAdapter adapter = new FilterCardScrollAdapter(bitmap,
-				this);
+		downsampledBitmap = BitmapUtils.decodeSampledBitmapFromPath(path, 200,
+				200);
+		scrollView = new CardScrollView(this);
+		FilterCardScrollAdapter adapter = new FilterCardScrollAdapter(
+				downsampledBitmap, null, this);
 		scrollView.setAdapter(adapter);
 		scrollView.activate();
 		scrollView.setOnItemClickListener(new OnItemClickListener() {

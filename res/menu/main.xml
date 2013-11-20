@@ -1,6 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/action_add_caption"
+        android:title="@string/action_add_caption"/>
+    <item
         android:id="@+id/action_share_to_twitter"
         android:title="@string/action_share_to_twitter"/>
 

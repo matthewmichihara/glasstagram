@@ -3,6 +3,8 @@ package com.fourpool.glasstagram;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,7 @@ import com.lightbox.android.photoprocessing.PhotoProcessing;
 public class FilterCardScrollAdapter extends CardScrollAdapter {
 	private final Bitmap bitmap;
 	private final Context context;
+	private final String caption;
 
 	private static final int[] FILTER_RES_IDS = new int[] {
 			R.string.filter_original, R.string.filter_instafix,
@@ -24,9 +27,11 @@ public class FilterCardScrollAdapter extends CardScrollAdapter {
 			R.string.filter_georgia, R.string.filter_sahara,
 			R.string.filter_hdr };
 
-	public FilterCardScrollAdapter(Bitmap bitmap, Context context) {
+	public FilterCardScrollAdapter(Bitmap bitmap, String caption,
+			Context context) {
 		this.bitmap = bitmap;
 		this.context = context;
+		this.caption = caption;
 	}
 
 	@Override
@@ -56,6 +61,7 @@ public class FilterCardScrollAdapter extends CardScrollAdapter {
 		ImageView filteredImage = (ImageView) v
 				.findViewById(R.id.filtered_image);
 		TextView filteredName = (TextView) v.findViewById(R.id.filter_name);
+		TextView captionText = (TextView) v.findViewById(R.id.caption);
 
 		Bitmap bm = PhotoProcessing.filterPhoto(
 				bitmap.copy(Config.ARGB_8888, true), arg0);
@@ -63,6 +69,13 @@ public class FilterCardScrollAdapter extends CardScrollAdapter {
 		filteredImage.setImageBitmap(bm);
 		filteredName.setText(FILTER_RES_IDS[arg0]);
 
+		if (!TextUtils.isEmpty(caption)) {
+			Log.d("asdf", "caption not empty");
+			captionText.setVisibility(View.VISIBLE);
+			captionText.setText(caption);
+		} else {
+			captionText.setVisibility(View.GONE);
+		}
 		return v;
 	}
 }

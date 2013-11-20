@@ -7,8 +7,18 @@
         android:id="@+id/filtered_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentRight="true"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="#CC000000"
+        android:gravity="center"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/filter_name"

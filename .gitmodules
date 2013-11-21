@@ -1,0 +1,3 @@
+[submodule "PhotoProcessing"]
+	path = PhotoProcessing
+	url = git@github.com:matthewmichihara/PhotoProcessing.git
